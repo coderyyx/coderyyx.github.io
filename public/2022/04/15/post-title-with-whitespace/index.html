@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Service Worker助力前端性能优化 | 前端拾乐园</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="图片来源：https:&#x2F;&#x2F;www.searchviu.com&#x2F;en&#x2F;service-worker-what-seos-need-to-know&#x2F;   本文作者：杨运心  1. 前言Service Worker 对于前端开发工程师们已经不是一个新的概念了，依稀记得前两年还比较火主要的应用场景是 PWA，现在好像没有那么火热了，主要还是业务场景不太适合，比如我们的移动端大部分都是跑在 app 内。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Service Worker助力前端性能优化">
+<meta property="og:url" content="http://example.com/2022/04/15/post-title-with-whitespace/index.html">
+<meta property="og:site_name" content="前端拾乐园">
+<meta property="og:description" content="图片来源：https:&#x2F;&#x2F;www.searchviu.com&#x2F;en&#x2F;service-worker-what-seos-need-to-know&#x2F;   本文作者：杨运心  1. 前言Service Worker 对于前端开发工程师们已经不是一个新的概念了，依稀记得前两年还比较火主要的应用场景是 PWA，现在好像没有那么火热了，主要还是业务场景不太适合，比如我们的移动端大部分都是跑在 app 内。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://storage.googleapis.com/seoviu_wordpress/blog/2020/11/def3dc08-serviceworker-darstellung-1.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/12396286292/29c6/a37d/a934/b3291a35422f3f68ab952440d2ef5ced.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12468507922/ff68/e82f/fd98/5d54a28d37dd394130457cc255cb3dde.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13048600064/a830/bc2d/93cc/70770c6aa62f4bd977246f1d4d2e5930.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13048690215/4f19/effc/5a24/96f44423c9280ee0afd86dce5a6c0ee2.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13048716240/6bac/341e/f617/1feedb8210f12e37437bc9b96780abc5.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13050316024/4c29/558b/0fbe/ffdb494ffc70f310bf0b12773b646bdd.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12480977220/0b6f/63d8/9aa3/baf83a116fd0fc7d7a53521cf8ecc3e5.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12472053927/afc1/d109/0cac/f80245951ea130781c96afd45bee51a4.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12502251563/b0e3/d28f/1beb/afce09348a3db54df385f65b239f678f.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12509990106/2536/8da9/1c3b/5ef7d67cd08f920a9d1d9b9eff4edb74.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469003111/a34b/5d79/44b9/5b278ff92ea13e9388423953ce6217a4.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469128645/746e/54fc/a920/bf83fc9cd3ce7365caca6ffb049ded41.png">
+<meta property="og:image" content="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469002381/f59a/9501/05eb/31dd0ac3e4cc64d6cd2816d14607a472.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469213740/77e4/1d13/ed64/27ea0403f1298cee36f5ab9b66b2b7e1.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13200277262/24b1/4fe4/61f2/431442767bc26af68c421e211205dc03.png">
+<meta property="og:image" content="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13200277264/f28b/fa5c/9864/d74c3014b6cdd30e2f11c99b29aff1d2.png">
+<meta property="article:published_time" content="2022-04-15T02:09:40.000Z">
+<meta property="article:modified_time" content="2022-04-15T03:19:22.888Z">
+<meta property="article:author" content="杨运心">
+<meta property="article:tag" content="性能优化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://storage.googleapis.com/seoviu_wordpress/blog/2020/11/def3dc08-serviceworker-darstellung-1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="前端拾乐园" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">前端拾乐园</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-post-title-with-whitespace" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/04/15/post-title-with-whitespace/" class="article-date">
+  <time class="dt-published" datetime="2022-04-15T02:09:40.000Z" itemprop="datePublished">2022-04-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Service Worker助力前端性能优化
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><img src="https://storage.googleapis.com/seoviu_wordpress/blog/2020/11/def3dc08-serviceworker-darstellung-1.png" alt="题图"></p>
+<blockquote>
+<p>图片来源：<a target="_blank" rel="noopener" href="https://www.searchviu.com/en/service-worker-what-seos-need-to-know/">https://www.searchviu.com/en/service-worker-what-seos-need-to-know/</a></p>
+</blockquote>
+<blockquote>
+<p>本文作者：杨运心</p>
+</blockquote>
+<h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p><code>Service Worker</code> 对于前端开发工程师们已经不是一个新的概念了，依稀记得前两年还比较火主要的应用场景是 <code>PWA</code>，现在好像没有那么火热了，主要还是业务场景不太适合，比如我们的移动端大部分都是跑在 app 内。<code>Service Worker</code> 目前在我们移动端应用主要场景是用来缓存 js、图片、第三方 js 等一些静态资源。最近做了一个 feature，就是利用 <code>Service Worker</code> 缓存 html，提升应用性能 &amp; 站点性能。接下来就跟大家分享一下我们的技术方案以及过程中遇到的一些问题和解决思路还有最后优化的效果。</p>
+<h1 id="2、Service-Worker-简介"><a href="#2、Service-Worker-简介" class="headerlink" title="2、Service Worker 简介"></a>2、Service Worker 简介</h1><p>为了防止大家有些许遗忘，这里还是回顾一下 Service Worker 的相关知识点，熟悉的同学可以跳过</p>
+<p>Service Worker 是浏览器在后台独立于网页运行的脚本，它本质上是一种 <code>web worker</code>，我们知道如果有一些耗时的任务如果需要优化我们可能首先想到的方案就是放到 <code>web worker</code> 中执行，因为它完全独立于 js 主线程，不会产生长任务从而导致一些用户体验问题。它相对于普通的 <code>web worker</code> 有了离线缓存的功能，也就是拦截处理网络请求，包括通过程序来管理缓存中的响应。</p>
+<p>这个 API 之前之所以火热，是因为它可以支持离线体验，让开发者能够全面控制请求和响应，所以这个能力的可操作空间很大，有丰富的想象力。</p>
+<p>使用 Service Worker 有一些需要注意的点：</p>
+<ul>
+<li>生产环境必须在 <code>https</code> 下才能生效，因为 SW 的能力过于强大，所以必须要保证安全；</li>
+<li>它是一种 <code>web worker</code> 无法访问 DOM。 Service Worker 通过响应 <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/workers.html#dom-worker-postmessage">postMessage</a> 接口发送的消息来与其控制的页面通信，页面可在必要时对 DOM 执行操作。</li>
+<li>可以拦截作用域内页面发出的请求以及处理响应</li>
+<li>异步实现，大量使用了 <code>promise</code></li>
+</ul>
+<h4 id="Service-Worker-的生命周期"><a href="#Service-Worker-的生命周期" class="headerlink" title="Service Worker 的生命周期"></a>Service Worker 的生命周期</h4><p> 简单介绍一下 Service Worker 的生命周期，它主要经过如下几个阶段：<code>installing</code> -&gt; <code>installed</code> -&gt; <code>activating</code> -&gt; <code>activated</code> -&gt; <code>redundant</code></p>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/12396286292/29c6/a37d/a934/b3291a35422f3f68ab952440d2ef5ced.png"/>
+</div>
+
+<blockquote>
+<p><code>INSTALLING</code>： 这个钩子表示 Service Worker 正在注册，**<code>我们一般会在这个阶段预缓存资源</code>**<br><code>INSTALLED</code>： 这个阶段表示 Service Worker 注册成功，**<code>预缓存的资源也都成功缓存到本地</code>**<br><code>ACTIVATING</code>： 当前页面以及没有其他 Service Worker 控制，**<code>我们一般在这个阶段清理过期的缓存</code>**<br><code>ACTIVATED</code>： 激活态，在这个阶段 Service Worker 正在接管了页面，可以拦截页面请求等一些操作。<br><code>REDUNDANT</code>： 废弃，当前 Service Worker 被新的替换</p>
+</blockquote>
+<h4 id="如何借助-Service-Worker-优化前端性能"><a href="#如何借助-Service-Worker-优化前端性能" class="headerlink" title="如何借助 Service Worker 优化前端性能"></a>如何借助 Service Worker 优化前端性能</h4><p>Service Worker 对前端性能优化有什么帮助，到底能有多大的效果，我相信也是大家比较关注的。目前我们的方案是缓存静态资源在客户端来优化站点的性能，当然这也是业内比较常见的利用 Service Worker 优化前端性能的常见方案。我们都知道一个页面最终呈现在用户侧主要会经历 <code>资源下载</code> 以及 <code>浏览器渲染</code>，用下图简单呈现。</p>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12468507922/ff68/e82f/fd98/5d54a28d37dd394130457cc255cb3dde.png"/>
+</div>
+
+<p>从上图我们可以肯定的是为了让页面快速呈现在用户侧，缩短资源加载时间是一个可行的方案。下面的对比也直观反应出了使用了 Service Worker 对页面加载的提升。</p>
+<h1 id="3、Service-Worker-缓存静态资源流程"><a href="#3、Service-Worker-缓存静态资源流程" class="headerlink" title="3、Service Worker 缓存静态资源流程"></a>3、Service Worker 缓存静态资源流程</h1><p>下面我们先通过一个简单的 demo 梳理一下 Service Worker 缓存静态资源的大致流程。</p>
+<p>使用 create-react-app 脚手架初始化的 PWA 模板初始化，因为这个模板已经集成了 Service Worker</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx create-react-app serviceworker-demo --template cra-template-pwa</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在入口文件 <code>index.js</code> 中注册 <code>Service Worker</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">serviceWorkerRegistration.<span class="title function_">register</span>();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Service Worker 的核心逻辑</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; precacheAndRoute, createHandlerBoundToURL &#125; <span class="keyword">from</span> <span class="string">&#x27;workbox-precaching&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; registerRoute &#125; <span class="keyword">from</span> <span class="string">&#x27;workbox-routing&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> precachelist = self.<span class="property">__WB_MANIFEST</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;===========&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(precachelist);</span><br><span class="line"></span><br><span class="line"><span class="title function_">precacheAndRoute</span>(precachelist);</span><br></pre></td></tr></table></figure>
+<p>我们可以看到使用了 <a target="_blank" rel="noopener" href="https://developers.google.com/web/tools/workbox">Workbox</a> 库实现相关逻辑，这个库是 <code>Google</code> 实验室推出的，它集成了 Service Worker 相关的最佳实践，也是现在比较推荐的开发 Service Worker 的库。</p>
+</li>
+</ul>
+<p>它主要干了两件事：</p>
+<ul>
+<li><p>获取 <code>precachelist</code>，这个是我们应用在构建阶段生成的静态资源列表</p>
+</li>
+<li><p>通过 <code>precacheAndRoute</code> 这个方法把静态资源下载到本地并且缓存到本地 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Cache">Caches</a> 中；然后注册路由，当 <code>Service Worker</code> 生效后会拦截页面发出的请求，当页面访问的资源发现已经缓存在 <code>Caches</code> 中后就会返回本地缓存的资源。</p>
+</li>
+</ul>
+<p>这个 demo 已经放到了 <code>github pages</code>。 <a target="_blank" rel="noopener" href="https://github.com/coderyyx/serviceworker-demo">项目地址</a>、<a target="_blank" rel="noopener" href="https://coderyyx.github.io/serviceworker-demo/">线上 demo 地址</a></p>
+<ul>
+<li>缓存的资源列表</li>
+</ul>
+<p>控制台打出的日志即为 Service Worker 将预缓存到本地的静态资源列表，如下所示：<br> <div align=center><br><img src="https://p6.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13048600064/a830/bc2d/93cc/70770c6aa62f4bd977246f1d4d2e5930.png"/></p>
+</div>
+
+<ul>
+<li>资源列表在本地的存储格式</li>
+</ul>
+<p>Service Worker 把静态资源缓存到本地缓存空间即 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/Cache">Caches</a>，他会缓存请求的 <code>Request</code> 和 <code>Response</code> 对象，如下图所示：<br> <div align=center><br><img src="https://p6.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13048690215/4f19/effc/5a24/96f44423c9280ee0afd86dce5a6c0ee2.png"/></p>
+</div>
+
+<ul>
+<li>实际表现 <div align=center>
+<img src="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13048716240/6bac/341e/f617/1feedb8210f12e37437bc9b96780abc5.png"/>
+</div></li>
+</ul>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13050316024/4c29/558b/0fbe/ffdb494ffc70f310bf0b12773b646bdd.png"/>
+</div>
+
+<p>可以看到页面访问的所有被预缓存的资源都被 Service Worker 处理过，是从本地缓存空间返回的。图中 <code>logo192.png</code> 之所以发起了2次请求是因为对图片资源应用了 <code>StaleWhileRevalidate</code> 缓存策略： 即首次从本地返回随后发起请求更新资源。关于缓存策略这里就不展开了，这里对各种<a target="_blank" rel="noopener" href="https://developers.google.com/web/tools/workbox/reference-docs/latest/module-workbox-strategies">缓存策略</a>有详细的介绍。</p>
+<p>上面通过一个简单的 demo 介绍了如何应用 Service Worker；当然 demo 和实际的业务场景中应用差距还是很大的，下面就介绍我们是如何在业务中落地的。</p>
+<h1 id="4、缓存静态资源方案"><a href="#4、缓存静态资源方案" class="headerlink" title="4、缓存静态资源方案"></a>4、缓存静态资源方案</h1><p>为了便于大家理解，在开始介绍我们的优化方案之前我觉得有必要先跟大家介绍一下目前我们移动站的业务场景以及系统架构。</p>
+<h4 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h4><p>由于我们业务的特殊性，我们一个工程内的页面分布在<strong>云音乐</strong>以及<strong>音街</strong>两个 App 内，还有剩下一部分是站外的落地页，通常在各类浏览器以及微信里传播，如下图所示：<br> <div align=center><br><img src="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12480977220/0b6f/63d8/9aa3/baf83a116fd0fc7d7a53521cf8ecc3e5.png"/></p>
+</div>
+
+<h4 id="应用架构"><a href="#应用架构" class="headerlink" title="应用架构"></a>应用架构</h4><p>我们系统架构有如下几个特点：</p>
+<ul>
+<li>React 同构应用</li>
+<li><code>SSG</code></li>
+<li>支持 <code>SSR</code> 降级 <code>SSG</code></li>
+<li>静态资源 CDN 缓存 (包括html)</li>
+</ul>
+<h4 id="构建流程"><a href="#构建流程" class="headerlink" title="构建流程"></a>构建流程</h4><p>由于上述说的业务场景的特殊性且也是为了方便管理，我们对路由也进行了拆分，最后对每个路由进行了 <code>SSG</code> 处理，生成对应的 html 资源，主要给 CSR 的页面以及 SSR 降级的页面使用。</p>
+ <div align=center>
+<img src="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12472053927/afc1/d109/0cac/f80245951ea130781c96afd45bee51a4.png"/>
+</div>
+
+<p>上面简单介绍了我们的业务场景以及应用架构，我们的场景其实是比较适合应用 Service Worker 的，因为我们有 <code>SSG</code>，所以每个 html 都有页面基本的结构，所以如果缓存在本地收益是比较好的，用户会更快看到页面内容。</p>
+<p>在介绍完业务场景、系统架构以及构建流程后，接下来介绍我们基于当前的场景设计缓存静态资源的方案。可能有的同学会疑问缓存静态资源需要这么麻烦吗？一股脑全都预缓存不就完事了，如果你的应用很简单，几个路由，构建资源也不是很多我觉得问题不大。但是我们业务场景比较复杂，页面也很多。如果一次性缓存会带来两个问题：</p>
+<ul>
+<li>一是如果我只是云音乐用户缓存其他 app 里面的页面和资源是没有意义的，同时也会导致用户本地缓存过大；</li>
+<li>二是预缓存资源体积大会增加 Service Worker 的安装失败率，所以这是不可接受的。</li>
+</ul>
+<p>针对这个问题我们的方案是对不同场景注册不同的 **<code>sw.[env].js</code>**，它只预缓存当前环境相关的静态资源，相关代码如下：</p>
+<h4 id="分环境注册-SW"><a href="#分环境注册-SW" class="headerlink" title="分环境注册 SW"></a>分环境注册 SW</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// registerSw.js</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">registerSw</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">register</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">        <span class="comment">// 不支持 sw，直接退出</span></span><br><span class="line">        <span class="keyword">if</span> (!(<span class="string">&#x27;serviceWorker&#x27;</span> <span class="keyword">in</span> navigator)) &#123;</span><br><span class="line">            <span class="title function_">log</span>(<span class="string">&#x27;sw-notsupport&#x27;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> scriptName;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 当前环境云音乐</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="title class_">Env</span>.<span class="title function_">isInNEMapp</span>()) &#123;</span><br><span class="line">            scriptName = <span class="string">&#x27;/sw.music.js&#x27;</span>;</span><br><span class="line">        <span class="comment">// 当前环境音街</span></span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="title class_">Env</span>.<span class="title function_">isInKSapp</span>()) &#123;</span><br><span class="line">            scriptName = <span class="string">&#x27;/sw.ksong.js&#x27;</span>;</span><br><span class="line">        <span class="comment">// 站外</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            scriptName = <span class="string">&#x27;/sw.h5.js&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">await</span> navigator.<span class="property">serviceWorker</span>.<span class="title function_">register</span>(scriptName);</span><br><span class="line">            <span class="title function_">log</span>(<span class="string">&#x27;sw-success&#x27;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">            <span class="title function_">log</span>(<span class="string">&#x27;sw-error&#x27;</span>, error);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/loaded|complete/</span>.<span class="title function_">test</span>(<span class="variable language_">document</span>.<span class="property">readyState</span>)) &#123;</span><br><span class="line">        <span class="title function_">register</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;load&#x27;</span>, register);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="依赖收集"><a href="#依赖收集" class="headerlink" title="依赖收集"></a>依赖收集</h4><p>上面明确了根据当前不同的环境缓存相关的静态资源，所以我们需要收集不同环境下依赖的所有静态资源，目前我们只缓存 js 以及 SSG 输出的 html 资源。首先我们需要对路由文件改造，因为我们需要知道某个路由是在哪个环境中使用的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> routes = [</span><br><span class="line">    <span class="comment">// 只在音街 app 中使用</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/app/user/taskcenter/v1&#x27;</span>,</span><br><span class="line">        <span class="attr">exact</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="comment">// 标识当前路由使用环境</span></span><br><span class="line">        <span class="attr">app</span>: [<span class="string">&#x27;ksong&#x27;</span>],</span><br><span class="line">        <span class="attr">component</span>: <span class="title function_">loadable</span>(<span class="function">() =&gt;</span> <span class="title function_">import</span>(<span class="string">&#x27;@views/app/task-center&#x27;</span>)),</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只在云音乐 app 中使用</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/app/picksong/musicplaylist&#x27;</span>,</span><br><span class="line">        <span class="attr">exact</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">app</span>: [<span class="string">&#x27;music&#x27;</span>],</span><br><span class="line">        <span class="attr">component</span>: <span class="title function_">loadable</span>(<span class="function">() =&gt;</span> <span class="title function_">import</span>(<span class="string">&#x27;@views/app/pick-song/music-playlist&#x27;</span>)),</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在两个 app 中都使用</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">path</span>: <span class="string">&#x27;/app/picksong/playlist&#x27;</span>,</span><br><span class="line">        <span class="attr">exact</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">app</span>: [<span class="string">&#x27;ksong&#x27;</span>, <span class="string">&#x27;music&#x27;</span>],</span><br><span class="line">        <span class="attr">component</span>: <span class="title function_">loadable</span>(<span class="function">() =&gt;</span> <span class="title function_">import</span>(<span class="string">&#x27;@views/app/pick-song/playlist&#x27;</span>)),</span><br><span class="line">    &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>如上图我们在每个路由中都增加了一个字段 <code>app</code> 标识这个路由是在哪个环境中使用。接下来我们看看如何收集路由依赖的 js。</p>
+<ul>
+<li>收集 js</li>
+</ul>
+<p>收集 js 其实比较简单，我们可以遍历 route 文件，构建出每个路由的 html，然后从中提取出 js 然后合并去重（因为 vender 和 runtime 是页面间公用的）就可以了。</p>
+<p>收集页面依赖 js 代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// collect-deps.js</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">getDeps</span> = <span class="keyword">async</span> (<span class="params">url, app</span>) =&gt; &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 省略一些代码</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="title function_">renderToString</span>(</span><br><span class="line">        extractor.<span class="title function_">collectChunks</span>(</span><br><span class="line">            <span class="title class_">Component</span>(&#123;</span><br><span class="line">                url,</span><br><span class="line">            &#125;)</span><br><span class="line">        )</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> scriptTags = extractor.<span class="title function_">getScriptTags</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> scriptTags.<span class="title function_">match</span>(<span class="regexp">/(?&lt;=src=&quot;)(.+)(?=&quot;)/g</span>).<span class="title function_">map</span>(<span class="function">(<span class="params">item</span>) =&gt;</span> item.<span class="title function_">replace</span>(publicPath, <span class="string">&#x27;&#x27;</span>));</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">collectDeps</span> = <span class="keyword">async</span> (<span class="params">routes, app</span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> result = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">const</span> route <span class="keyword">of</span> routes) &#123;</span><br><span class="line">            <span class="keyword">const</span> url = route.<span class="property">path</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// eslint-disable-next-line no-await-in-loop</span></span><br><span class="line">            <span class="keyword">const</span> deps = <span class="keyword">await</span> <span class="title function_">getDeps</span>(url, app);</span><br><span class="line"></span><br><span class="line">            result.<span class="title function_">push</span>(...deps);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">        process.<span class="title function_">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(<span class="keyword">new</span> <span class="title class_">Set</span>(result));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>收集 html</li>
+</ul>
+<p>缓存 html 会有点麻烦，可能大家会说直接使用构建流程中生成的 html 就可以。但是这样有个问题就是我们缓存的 html 可能是旧版本的，因为我们除了 SSR 的路由都是上了 CDN 缓存的。举个例子，<code>https://domain/download</code>，这个页面是 CSR 渲染的，所以平时我们访问他的内容应该是从 CDN 节点返回的，然后我们缓存 <code>https://domain/download</code> 页面的 html 到本地，这个时候是没什么问题的，但是一旦这个页面在某个版本中被修改了上线后，Service Worker 重新预缓存这个路由的 html 到本地，它这个时候很有可能就是从 CDN 节点中拿到旧版本的内容，这样就导致了不能及时缓存最新版本的页面。<br>用下图简单说明这个问题：<br> <div align=center><br><img src="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12502251563/b0e3/d28f/1beb/afce09348a3db54df385f65b239f678f.png"/></p>
+</div>
+
+<ul>
+<li>1 这个流程表示首次方案页面，页面安装 Service Worker 然后预缓存 &#x2F;download&#x2F; 页面的 html 到本地缓存，同时 CDN 节点也会缓存 html；</li>
+<li>2 这条流程表示 Service Worker 安装成功、激活后用户访问页面，然后 &#x2F;download&#x2F; 路由的请求被 Service Worker 拦截使用本地缓存的 html 响应，这一步没有问题。</li>
+<li>3 这条流程表示当新版本发布后，新版的 Service Worker 重新预缓存 &#x2F;download&#x2F; 页面的 html，但是这时候拿到的内容很有可能就是 CDN 节点上缓存的 html，导致 Service Worker 缓存到本地的 html，一直是旧的！</li>
+</ul>
+<p>我们知道缓存 js 文件不会有这样的问题，因为 js 的路径中都包含了 **<code>contenthash</code>**，所以 Service Worker 缓存的永远都是最新的文件，那么最容易想到的解决方案就是给预缓存的 html 路径中也带上 **<code>contenthash</code>**。我们现在只需要在已经构建出来的 static html 资源基础上，再生成一份带 <strong><code>contenthash</code></strong> 的 html 提供给 Service Worker 预缓存使用。如下图所示：</p>
+ <div align=center>
+<img src="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12509990106/2536/8da9/1c3b/5ef7d67cd08f920a9d1d9b9eff4edb74.png"/>
+</div>
+
+<p>所以 Service Worker 缓存 html 到本地 <code>Caches</code> 就应该是:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    [pathname.[contenthash].<span class="property">html</span>] : content,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是 Service Worker 从本地 Caches 查询的时候需要额外做一层映射，因为我们访问的路由是 <code>https://domain/download</code>, 缓存到本地的请求是 <code>https://domain/download.[contenthash].html</code>，所以需要有一层请求的路由到实际缓存的路由的映射关系，这层关系我们可以在生成预缓存 html 的时候处理好，然后注入到 Service Worker 文件中。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// generate-precache-html.js</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">writeCacheHtml</span> = <span class="keyword">async</span> (<span class="params">url</span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> content = <span class="keyword">await</span> <span class="title function_">readFile</span>(url);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!content) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成 hash</span></span><br><span class="line">    <span class="keyword">const</span> hash = crypto.<span class="title function_">createHash</span>(<span class="string">&#x27;md4&#x27;</span>).<span class="title function_">update</span>(content).<span class="title function_">digest</span>(<span class="string">&#x27;hex&#x27;</span>).<span class="title function_">substr</span>(<span class="number">0</span>, <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 输出到 cache 目录提供给 sw 预缓存</span></span><br><span class="line">    <span class="keyword">const</span> filePath = path.<span class="title function_">join</span>(distDir, <span class="string">`sw-cache/<span class="subst">$&#123;url&#125;</span>`</span>, <span class="string">`<span class="subst">$&#123;hash&#125;</span>.html`</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">await</span> fs.<span class="title function_">outputFile</span>(filePath, newContent);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回相对路径</span></span><br><span class="line">    <span class="keyword">return</span> path.<span class="title function_">relative</span>(distDir, filePath);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 前端路由与预缓存 html 的对应关系, 提供给 sw 用来映射缓存的 html</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">generatePrecacheHtml</span> = <span class="keyword">async</span> (<span class="params">routes</span>) =&gt; &#123;</span><br><span class="line">    <span class="comment">// 存储映射关系</span></span><br><span class="line">    <span class="keyword">const</span> result = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">const</span> route <span class="keyword">of</span> routes) &#123;</span><br><span class="line">            <span class="keyword">const</span> url = route.<span class="property">path</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// eslint-disable-next-line no-await-in-loop</span></span><br><span class="line">            <span class="keyword">const</span> cacheHtmlPath = <span class="keyword">await</span> <span class="title function_">writeCacheHtml</span>(url);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (cacheHtmlPath) &#123;</span><br><span class="line">                result[url] = cacheHtmlPath;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        process.<span class="title function_">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Service-Worker-构建流程"><a href="#Service-Worker-构建流程" class="headerlink" title="Service Worker 构建流程"></a>Service Worker 构建流程</h4><p>把上面的步骤整合在一起就是 Service Worker 缓存静态资源的核心流程如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">const</span> app <span class="keyword">of</span> [<span class="string">&#x27;music&#x27;</span>, <span class="string">&#x27;ksong&#x27;</span>, <span class="string">&#x27;h5&#x27;</span>]) &#123;</span><br><span class="line">            <span class="keyword">const</span> swFilePath = path.<span class="title function_">join</span>(__dirname, <span class="string">`../../ksongmobile/sw.<span class="subst">$&#123;app&#125;</span>.js`</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * 根据 app 拿到全部路由</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">const</span> routes = <span class="title function_">getRoutesByApp</span>(app);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * js 文件列表</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">const</span> assets = <span class="keyword">await</span> <span class="title function_">collectDeps</span>(routes, app);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * 文件的路由映射关系</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">const</span> htmlRouteMap = <span class="keyword">await</span> <span class="title function_">generatePrecacheHtml</span>(routes);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * 文件修改</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">await</span> <span class="title function_">inject</span>(&#123;</span><br><span class="line">                <span class="attr">swSrc</span>: swFilePath,</span><br><span class="line">                <span class="attr">injectionPoint</span>: <span class="string">&#x27;self.__ROUTE_TO_CACHE_PATH__&#x27;</span>,</span><br><span class="line">                <span class="attr">content</span>: routeMap,</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> manifest = [...<span class="title class_">Object</span>.<span class="title function_">values</span>(htmlRouteMap), ...assets];</span><br><span class="line"></span><br><span class="line">            <span class="keyword">await</span> <span class="title function_">inject</span>(&#123;</span><br><span class="line">                <span class="attr">swSrc</span>: swFilePath,</span><br><span class="line">                <span class="attr">injectionPoint</span>: <span class="string">&#x27;self.__ASSETS_MANIFEST__&#x27;</span>,</span><br><span class="line">                <span class="attr">content</span>: manifest,</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(error);</span><br><span class="line">        process.<span class="title function_">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    process.<span class="title function_">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<p>整个流程看起来是非常清晰的，主要是获取预缓存的 js、html，以及 html 资源的路由与缓存的映射关系，最后向 Service Worker 文件注入上述两类资源。</p>
+<h4 id="Service-Worker-内部逻辑"><a href="#Service-Worker-内部逻辑" class="headerlink" title="Service Worker 内部逻辑"></a>Service Worker 内部逻辑</h4><p>可以看到 Service Worker 内部的逻辑十分简单，我们只需要注入预缓存资源列表以及 html 路由与本地预缓存路由的映射关系。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; precacheAndRoute &#125; <span class="keyword">from</span> <span class="string">&#x27;workbox-precaching&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 根据环境注入需要缓存的资源列表，从 PRECACHES_FILE_LIST 过滤出最终需要缓存的资源</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">PRECACHES_FILE_LIST</span> = self.<span class="property">__ASSETS_MANIFEST__</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 访问的 html 路由与本地预缓存路由的映射关系</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">ROUTE_TO_CACHE_PATH</span> = self.<span class="property">__ROUTE_TO_CACHE_PATH__</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 预缓存资源</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="title function_">precacheAndRoute</span>(<span class="variable constant_">PRECACHES_FILE_LIST</span>, &#123;</span><br><span class="line">    <span class="attr">directoryIndex</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">urlManipulation</span>: <span class="function">(<span class="params">&#123; url &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> pathname = url.<span class="property">pathname</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> cachePath = <span class="variable constant_">ROUTE_TO_CACHE_PATH</span>[pathname];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 命中用本地预缓存的 html 响应</span></span><br><span class="line">        <span class="keyword">if</span> (cachePath) &#123;</span><br><span class="line">            <span class="keyword">return</span> [<span class="keyword">new</span> <span class="title function_">URL</span>(cachePath, location.<span class="property">href</span>)];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> [url];</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的构建流程最后我们拿到三份 <code>sw.[env].js</code>，每份的区别就是 <code>PRECACHES_FILE_LIST</code> 、<code>ROUTE_TO_CACHE_PATH</code>, 最后在应用入口根据环境注册相应的 <code>Service Worker</code> 就可以了。</p>
+<h1 id="5、实际效果"><a href="#5、实际效果" class="headerlink" title="5、实际效果"></a>5、实际效果</h1><h4 id="单个页面效果对比"><a href="#单个页面效果对比" class="headerlink" title="单个页面效果对比"></a>单个页面效果对比</h4><h5 id="使用前"><a href="#使用前" class="headerlink" title="使用前"></a>使用前</h5><ul>
+<li><p>html 文档加载时间</p>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469003111/a34b/5d79/44b9/5b278ff92ea13e9388423953ce6217a4.png"/>
+</div>
+</li>
+<li><p>整个页面加载时间</p>
+ <div align=center>
+<img src="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469128645/746e/54fc/a920/bf83fc9cd3ce7365caca6ffb049ded41.png"/>
+</div></li>
+</ul>
+<h5 id="使用后"><a href="#使用后" class="headerlink" title="使用后"></a>使用后</h5><ul>
+<li><p>html 文档加载时间</p>
+ <div align=center>
+<img src="https://p6.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469002381/f59a/9501/05eb/31dd0ac3e4cc64d6cd2816d14607a472.png"/>
+</div>
+</li>
+<li><p>整个页面加载时间</p>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wo3DlcOGw6DClTvDisK1/12469213740/77e4/1d13/ed64/27ea0403f1298cee36f5ab9b66b2b7e1.png"/>
+</div></li>
+</ul>
+<p>从上面的对比中我们可以看到 html 文档的加载时间提升了 <code>96%</code>，整体页面的加载时间提升了 <code>69.4%</code>。</p>
+<h4 id="整体容器启动耗时对比"><a href="#整体容器启动耗时对比" class="headerlink" title="整体容器启动耗时对比"></a>整体容器启动耗时对比</h4><ul>
+<li><p>使用前</p>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13200277262/24b1/4fe4/61f2/431442767bc26af68c421e211205dc03.png"/>
+</div>
+</li>
+<li><p>使用后</p>
+ <div align=center>
+<img src="https://p5.music.126.net/obj/wonDlsKUwrLClGjCm8Kx/13200277264/f28b/fa5c/9864/d74c3014b6cdd30e2f11c99b29aff1d2.png"/>
+</div></li>
+</ul>
+<p>从数据上看其中 【DNS、SSL、请求响应】 能看到有明显降低。</p>
+<h1 id="6、总结与思考"><a href="#6、总结与思考" class="headerlink" title="6、总结与思考"></a>6、总结与思考</h1><h4 id="WKWebView-对-Service-Worker-的支持"><a href="#WKWebView-对-Service-Worker-的支持" class="headerlink" title="WKWebView 对 Service Worker 的支持"></a>WKWebView 对 Service Worker 的支持</h4><p>从 iOS14 开始如果要在 WKWebView 中使用 Service Worker 需要配置域名白名单，在名单内的域名才可以启用 Service Worker，可参考下列文章：<a target="_blank" rel="noopener" href="https://webkit.org/blog/10882/app-bound-domains/">app-bound-domains</a>、<a target="_blank" rel="noopener" href="https://firt.dev/ios-14/#service-workers">service-workers</a></p>
+<h4 id="关于使用场景"><a href="#关于使用场景" class="headerlink" title="关于使用场景"></a>关于使用场景</h4><p>如果大家是想使用 Service Worker 来做性能方面的优化这里有几个小提醒看看自己的站点是不是真的适合：</p>
+<ul>
+<li>多页应用</li>
+<li><code>SSG</code></li>
+<li>常规的前端优化手段都已经做过了且当前站点性能已经比较不错</li>
+</ul>
+<p>之所以这样说是因为如果缓存的 html 里面没有任何内容，只有一个根节点，页面内容都要在客户端构建我觉得用户体验也不会很好；从我们做前端性能优化的经验来看，Service Worker 的优先级不是最高的，因为还有很多其他的前端优化技巧比 Service Worker 来的更有效果，所以说常规的性能优化手段都做过了可以尝试 Service Worker。</p>
+<h4 id="关于离线包"><a href="#关于离线包" class="headerlink" title="关于离线包"></a>关于离线包</h4><p>现在很多公司内部都有<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904031773523976">离线包</a>的方案，常规方案的实现是 app 启动后下载、更新离线包资源到客户端本地，然后 webview 拦截对静态资源的请求从而返回本地缓存的资源。这个过程跟 Service Worker 离线访问的原理是一致的而且 Service Worker 是一个 Web 标准，所以随着标准的不断完善、各浏览器厂商的跟进，传统的离线包是不是可以退出历史舞台。</p>
+<h1 id="感谢阅读"><a href="#感谢阅读" class="headerlink" title="感谢阅读"></a>感谢阅读</h1><blockquote>
+<p>本文发布自 <a target="_blank" rel="noopener" href="https://github.com/x-orpheus">网易云音乐大前端团队</a>，文章未经授权禁止任何形式的转载。我们常年招收前端、iOS、Android，如果你准备换工作，又恰好喜欢云音乐，那就加入我们 grp.music-fe(at)corp.netease.com！</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/04/15/post-title-with-whitespace/" data-id="cl1zsmfkv000078d47zuv2ucg" data-title="Service Worker助力前端性能优化" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="tag">性能优化</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2022/04/15/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          Hello World
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cesh/" rel="tag">cesh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="tag">性能优化</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/cesh/" style="font-size: 10px;">cesh</a> <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 10px;">性能优化</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/04/15/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2022/04/15/post-title-with-whitespace/">Service Worker助力前端性能优化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2022 杨运心<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
